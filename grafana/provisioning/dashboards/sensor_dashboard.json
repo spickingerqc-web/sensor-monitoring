@@ -1,0 +1,190 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "SensorDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 30 },
+              { "color": "red", "value": 38 }
+            ]
+          },
+          "unit": "celsius",
+          "min": 0,
+          "max": 50
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background" },
+      "title": "Temperature",
+      "type": "gauge",
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, temperature as value FROM sensor_data ORDER BY id DESC LIMIT 1",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": "SensorDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 85 }
+            ]
+          },
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto" },
+      "title": "Humidity",
+      "type": "gauge",
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, humidity as value FROM sensor_data ORDER BY id DESC LIMIT 1",
+          "format": "time_series",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "datasource": "SensorDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1010 },
+              { "color": "red", "value": 1020 }
+            ]
+          },
+          "unit": "pressurehpa",
+          "min": 950,
+          "max": 1050
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto" },
+      "title": "Pressure",
+      "type": "gauge",
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, pressure as value FROM sensor_data ORDER BY id DESC LIMIT 1",
+          "format": "time_series",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "datasource": "SensorDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "yellow", "value": 500 },
+              { "color": "orange", "value": 800 }
+            ]
+          },
+          "unit": "lux",
+          "min": 0,
+          "max": 1000
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "id": 4,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto" },
+      "title": "Light Level",
+      "type": "gauge",
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, light_level as value FROM sensor_data ORDER BY id DESC LIMIT 1",
+          "format": "time_series",
+          "refId": "D"
+        }
+      ]
+    },
+    {
+      "datasource": "SensorDB",
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2 } },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 5,
+      "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+      "title": "Temperature & Humidity Trend",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT timestamp AS time, temperature, humidity FROM sensor_data WHERE $__timeFilter(timestamp) ORDER BY timestamp",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": "SensorDB",
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2 } },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 6,
+      "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+      "title": "Pressure & Light Trend",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT timestamp AS time, pressure, light_level FROM sensor_data WHERE $__timeFilter(timestamp) ORDER BY timestamp",
+          "format": "time_series",
+          "refId": "B"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["sensor", "mysql", "realtime"],
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Sensor Real-Time Monitor",
+  "uid": "sensor-rt-001",
+  "version": 1
+}
