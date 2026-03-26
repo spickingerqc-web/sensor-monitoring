@@ -236,11 +236,8 @@
       "datasource": "SensorDB",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
           "custom": {
-            "lineWidth": 2
+            "align": "center"
           }
         },
         "overrides": []
@@ -253,31 +250,21 @@
       },
       "id": 5,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
+        "sortBy": [
+          {
+            "displayName": "timestamp",
+            "desc": true
+          }
+        ]
       },
-      "title": "Temperature & Humidity Trend",
-      "type": "timeseries",
+      "title": "Temperature & Humidity (Recent 30)",
+      "type": "table",
       "targets": [
         {
           "datasource": "SensorDB",
-          "rawSql": "SELECT timestamp AS time, temperature AS value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 10 MINUTE ORDER BY timestamp",
-          "format": "time_series",
-          "refId": "A",
-          "legendFormat": "Temperature"
-        },
-        {
-          "datasource": "SensorDB",
-          "rawSql": "SELECT timestamp AS time, humidity AS value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 10 MINUTE ORDER BY timestamp",
-          "format": "time_series",
-          "refId": "B",
-          "legendFormat": "Humidity"
+          "rawSql": "SELECT timestamp, temperature, humidity FROM sensor_data ORDER BY id DESC LIMIT 30",
+          "format": "table",
+          "refId": "A"
         }
       ]
     },
@@ -285,11 +272,8 @@
       "datasource": "SensorDB",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
           "custom": {
-            "lineWidth": 2
+            "align": "center"
           }
         },
         "overrides": []
@@ -302,31 +286,21 @@
       },
       "id": 6,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
+        "sortBy": [
+          {
+            "displayName": "timestamp",
+            "desc": true
+          }
+        ]
       },
-      "title": "Pressure & Light Trend",
-      "type": "timeseries",
+      "title": "Pressure & Light Level (Recent 30)",
+      "type": "table",
       "targets": [
         {
           "datasource": "SensorDB",
-          "rawSql": "SELECT timestamp AS time, pressure AS value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 10 MINUTE ORDER BY timestamp",
-          "format": "time_series",
-          "refId": "A",
-          "legendFormat": "Pressure"
-        },
-        {
-          "datasource": "SensorDB",
-          "rawSql": "SELECT timestamp AS time, light_level AS value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 10 MINUTE ORDER BY timestamp",
-          "format": "time_series",
-          "refId": "B",
-          "legendFormat": "Light Level"
+          "rawSql": "SELECT timestamp, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 30",
+          "format": "table",
+          "refId": "B"
         }
       ]
     }
