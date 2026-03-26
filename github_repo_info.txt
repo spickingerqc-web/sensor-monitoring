@@ -1,1 +1,8 @@
-https://github.com/spickingerqc-web/sensor-monitoring
+# Submission Information — Week 4 Capstone Design
+
+## GitHub Repository
+Repo Name : sensor-monitoring
+Repo URL  : https://github.com/spickingerqc-web/sensor-monitoring
+
+## 제출일
+2026-03-26
