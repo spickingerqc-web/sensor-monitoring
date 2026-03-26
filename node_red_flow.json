@@ -1,173 +1,197 @@
 [
   {
-    "id": "tab_sensor",
+    "id": "tab1",
     "type": "tab",
-    "label": "Sensor Monitor",
-    "disabled": false,
-    "info": "Real-time sensor dashboard via MySQL"
+    "label": "Sensor Monitor"
   },
   {
-    "id": "inject_trigger",
+    "id": "n_inject",
     "type": "inject",
-    "z": "tab_sensor",
+    "z": "tab1",
     "name": "Every 2s",
-    "props": [{ "p": "payload" }],
     "repeat": "2",
-    "crontab": "",
     "once": true,
-    "onceDelay": 0.1,
-    "topic": "",
+    "onceDelay": 0.5,
     "payload": "",
     "payloadType": "date",
-    "x": 120,
-    "y": 120,
-    "wires": [["mysql_query"]]
-  },
-  {
-    "id": "mysql_query",
-    "type": "mysql",
-    "z": "tab_sensor",
-    "name": "sensor_db query",
-    "mydb": "mysql_config",
-    "query": "SELECT timestamp, temperature, humidity, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 1;",
-    "x": 320,
-    "y": 120,
-    "wires": [["split_fields", "debug_out"]]
-  },
-  {
-    "id": "split_fields",
-    "type": "function",
-    "z": "tab_sensor",
-    "name": "Split to messages",
-    "func": "var row = msg.payload[0];\nif (!row) return null;\nreturn [\n  [{ payload: row.temperature,  topic: 'temperature' }],\n  [{ payload: row.humidity,     topic: 'humidity'    }],\n  [{ payload: row.pressure,     topic: 'pressure'    }],\n  [{ payload: row.light_level,  topic: 'light_level' }],\n  [{ payload: row.timestamp,    topic: 'timestamp'   }]\n];",
-    "outputs": 5,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "x": 540,
-    "y": 120,
+    "x": 130,
+    "y": 100,
     "wires": [
-      ["gauge_temp"],
-      ["gauge_hum"],
-      ["gauge_press"],
-      ["gauge_light"],
-      ["text_ts"]
+      [
+        "n_setquery"
+      ]
     ]
   },
   {
-    "id": "gauge_temp",
+    "id": "n_setquery",
+    "type": "function",
+    "z": "tab1",
+    "name": "Set Query",
+    "func": "msg.topic = 'SELECT timestamp, temperature, humidity, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 30';\nreturn msg;",
+    "outputs": 1,
+    "x": 320,
+    "y": 100,
+    "wires": [
+      [
+        "n_mysql"
+      ]
+    ]
+  },
+  {
+    "id": "n_mysql",
+    "type": "mysql",
+    "z": "tab1",
+    "name": "sensor_db",
+    "mydb": "n_dbconfig",
+    "x": 510,
+    "y": 100,
+    "wires": [
+      [
+        "n_split"
+      ]
+    ]
+  },
+  {
+    "id": "n_split",
+    "type": "function",
+    "z": "tab1",
+    "name": "Split & format",
+    "func": "var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar gTemp  = {payload: latest.temperature,  topic:'temperature'};\nvar gHum   = {payload: latest.humidity,     topic:'humidity'};\nvar gPress = {payload: latest.pressure,     topic:'pressure'};\nvar gLight = {payload: latest.light_level,  topic:'light_level'};\nvar sorted = rows.slice().reverse();\nfunction makeChart(field, label) {\n    var pts = sorted.map(function(r) {\n        return { x: new Date(r.timestamp).getTime(), y: r[field] };\n    });\n    return { payload: [{ series:[label], data:[pts], labels:[label] }] };\n}\nnode.log('DB OK: temp='+latest.temperature+' rows='+rows.length);\nreturn [\n  [gTemp],[gHum],[gPress],[gLight],\n  [makeChart('temperature','Temperature')],\n  [makeChart('humidity','Humidity')],\n  [makeChart('pressure','Pressure')],\n  [makeChart('light_level','Light')]\n];",
+    "outputs": 8,
+    "x": 710,
+    "y": 100,
+    "wires": [
+      [
+        "n_g_temp"
+      ],
+      [
+        "n_g_hum"
+      ],
+      [
+        "n_g_press"
+      ],
+      [
+        "n_g_light"
+      ],
+      [
+        "n_c_temp"
+      ],
+      [
+        "n_c_hum"
+      ],
+      [
+        "n_c_press"
+      ],
+      [
+        "n_c_light"
+      ]
+    ]
+  },
+  {
+    "id": "n_g_temp",
     "type": "ui_gauge",
-    "z": "tab_sensor",
-    "name": "Temperature",
-    "group": "group_sensors",
+    "z": "tab1",
+    "group": "n_grp1",
     "order": 1,
     "width": 3,
     "height": 3,
-    "gtype": "gage",
     "title": "Temperature",
-    "label": "°C",
+    "label": "\u00b0C",
     "format": "{{value}}",
     "min": 0,
     "max": 50,
-    "colors": ["#00b500", "#e6e600", "#ca3838"],
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
     "seg1": "25",
     "seg2": "35",
-    "x": 760,
-    "y": 60,
+    "x": 960,
+    "y": 40,
     "wires": []
   },
   {
-    "id": "gauge_hum",
+    "id": "n_g_hum",
     "type": "ui_gauge",
-    "z": "tab_sensor",
-    "name": "Humidity",
-    "group": "group_sensors",
+    "z": "tab1",
+    "group": "n_grp1",
     "order": 2,
     "width": 3,
     "height": 3,
-    "gtype": "gage",
     "title": "Humidity",
     "label": "%",
     "format": "{{value}}",
     "min": 0,
     "max": 100,
-    "colors": ["#00b500", "#e6e600", "#ca3838"],
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
     "seg1": "60",
     "seg2": "80",
-    "x": 760,
-    "y": 120,
+    "x": 960,
+    "y": 100,
     "wires": []
   },
   {
-    "id": "gauge_press",
+    "id": "n_g_press",
     "type": "ui_gauge",
-    "z": "tab_sensor",
-    "name": "Pressure",
-    "group": "group_sensors",
+    "z": "tab1",
+    "group": "n_grp1",
     "order": 3,
     "width": 3,
     "height": 3,
-    "gtype": "gage",
     "title": "Pressure",
     "label": "hPa",
     "format": "{{value}}",
     "min": 950,
     "max": 1050,
-    "colors": ["#00b500", "#e6e600", "#ca3838"],
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
     "seg1": "990",
     "seg2": "1020",
-    "x": 760,
-    "y": 180,
+    "x": 960,
+    "y": 160,
     "wires": []
   },
   {
-    "id": "gauge_light",
+    "id": "n_g_light",
     "type": "ui_gauge",
-    "z": "tab_sensor",
-    "name": "Light Level",
-    "group": "group_sensors",
+    "z": "tab1",
+    "group": "n_grp1",
     "order": 4,
     "width": 3,
     "height": 3,
-    "gtype": "gage",
     "title": "Light Level",
     "label": "lux",
     "format": "{{value}}",
     "min": 0,
     "max": 1000,
-    "colors": ["#0000ff", "#e6e600", "#ca3838"],
+    "colors": [
+      "#0000ff",
+      "#e6e600",
+      "#ca3838"
+    ],
     "seg1": "300",
     "seg2": "700",
-    "x": 760,
-    "y": 240,
+    "x": 960,
+    "y": 220,
     "wires": []
   },
   {
-    "id": "text_ts",
-    "type": "ui_text",
-    "z": "tab_sensor",
-    "group": "group_sensors",
-    "order": 5,
-    "width": 6,
-    "height": 1,
-    "name": "Last Update",
-    "label": "Last Update",
-    "format": "{{msg.payload}}",
-    "layout": "row-spread",
-    "x": 760,
-    "y": 300,
-    "wires": []
-  },
-  {
-    "id": "chart_temp",
+    "id": "n_c_temp",
     "type": "ui_chart",
-    "z": "tab_sensor",
-    "name": "Temp Chart",
-    "group": "group_charts",
+    "z": "tab1",
+    "group": "n_grp2",
     "order": 1,
     "width": 6,
     "height": 4,
-    "label": "Temperature over time",
+    "label": "Temperature (\u00b0C)",
     "chartType": "line",
     "legend": "false",
     "xformat": "HH:mm:ss",
@@ -176,35 +200,103 @@
     "dot": false,
     "ymin": "0",
     "ymax": "50",
-    "removeOlder": 1,
-    "removeOlderPoints": "60",
-    "removeOlderUnit": "3600",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "",
     "cutout": 0,
-    "useOneColor": false,
-    "colors": ["#e62325"],
-    "x": 760,
-    "y": 360,
+    "colors": [
+      "#ca3838"
+    ],
+    "x": 960,
+    "y": 280,
     "wires": []
   },
   {
-    "id": "debug_out",
-    "type": "debug",
-    "z": "tab_sensor",
-    "name": "Debug",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 540,
-    "y": 220,
+    "id": "n_c_hum",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "n_grp2",
+    "order": 2,
+    "width": 6,
+    "height": 4,
+    "label": "Humidity (%)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "No data",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "100",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "",
+    "cutout": 0,
+    "colors": [
+      "#0000ca"
+    ],
+    "x": 960,
+    "y": 340,
     "wires": []
   },
   {
-    "id": "mysql_config",
+    "id": "n_c_press",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "n_grp3",
+    "order": 1,
+    "width": 6,
+    "height": 4,
+    "label": "Pressure (hPa)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "No data",
+    "dot": false,
+    "ymin": "950",
+    "ymax": "1050",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "",
+    "cutout": 0,
+    "colors": [
+      "#00b500"
+    ],
+    "x": 960,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "n_c_light",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "n_grp3",
+    "order": 2,
+    "width": 6,
+    "height": 4,
+    "label": "Light Level (lux)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "No data",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "1000",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "",
+    "cutout": 0,
+    "colors": [
+      "#e6a000"
+    ],
+    "x": 960,
+    "y": 460,
+    "wires": []
+  },
+  {
+    "id": "n_dbconfig",
     "type": "MySQLdatabase",
     "name": "sensor_db",
     "host": "127.0.0.1",
@@ -213,32 +305,37 @@
     "tz": ""
   },
   {
-    "id": "group_sensors",
+    "id": "n_grp1",
     "type": "ui_group",
-    "name": "Sensor Gauges",
-    "tab": "ui_tab_main",
+    "name": "Live Gauges",
+    "tab": "n_tab1",
     "order": 1,
     "disp": true,
-    "width": "12",
-    "collapse": false
+    "width": "12"
   },
   {
-    "id": "group_charts",
+    "id": "n_grp2",
     "type": "ui_group",
-    "name": "Trend Charts",
-    "tab": "ui_tab_main",
+    "name": "Temp & Humidity Trend",
+    "tab": "n_tab1",
     "order": 2,
     "disp": true,
-    "width": "12",
-    "collapse": false
+    "width": "12"
   },
   {
-    "id": "ui_tab_main",
+    "id": "n_grp3",
+    "type": "ui_group",
+    "name": "Pressure & Light Trend",
+    "tab": "n_tab1",
+    "order": 3,
+    "disp": true,
+    "width": "12"
+  },
+  {
+    "id": "n_tab1",
     "type": "ui_tab",
     "name": "Sensor Dashboard",
     "icon": "dashboard",
-    "order": 1,
-    "disabled": false,
-    "hidden": false
+    "order": 1
   }
 ]
