@@ -1,51 +1,40 @@
 {
-  "__inputs": [],
-  "__requires": [],
+  "uid": "sensor-rt-001",
+  "title": "\ud83c\udf21\ufe0f Sensor Real-Time Monitor",
+  "tags": [
+    "sensor",
+    "mysql",
+    "realtime"
+  ],
+  "style": "dark",
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": {
+    "from": "now-10m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "schemaVersion": 36,
+  "version": 1,
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
   "annotations": {
     "list": []
   },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
-  "id": null,
-  "links": [],
   "panels": [
     {
-      "datasource": "SensorDB",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 30
-              },
-              {
-                "color": "red",
-                "value": 38
-              }
-            ]
-          },
-          "unit": "celsius",
-          "min": 0,
-          "max": 50
-        }
-      },
+      "id": 10,
+      "type": "stat",
+      "title": "\ud83d\udce6 Total Records",
       "gridPos": {
-        "h": 8,
-        "w": 6,
+        "h": 4,
+        "w": 4,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "datasource": "SensorDB",
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -54,10 +43,302 @@
         },
         "orientation": "auto",
         "textMode": "auto",
-        "colorMode": "background"
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
       },
-      "title": "Temperature",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#5794F2"
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#5794F2",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, COUNT(*) as value FROM sensor_data",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "\ud83d\udd50 Last Update",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 4,
+        "y": 0
+      },
+      "datasource": "SensorDB",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#37872D"
+          },
+          "unit": "dateTimeAsLocal",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#37872D",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, UNIX_TIMESTAMP(MAX(timestamp))*1000 as value FROM sensor_data",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "\ud83c\udf21\ufe0f Avg Temperature",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 10,
+        "y": 0
+      },
+      "datasource": "SensorDB",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#73BF69",
+                "value": null
+              },
+              {
+                "color": "#FF9830",
+                "value": 30
+              },
+              {
+                "color": "#F2495C",
+                "value": 37
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, ROUND(AVG(temperature),1) as value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 5 MINUTE",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "\ud83d\udca7 Avg Humidity",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 14,
+        "y": 0
+      },
+      "datasource": "SensorDB",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#5794F2",
+                "value": null
+              },
+              {
+                "color": "#FF9830",
+                "value": 70
+              },
+              {
+                "color": "#F2495C",
+                "value": 85
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, ROUND(AVG(humidity),1) as value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 5 MINUTE",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "\ud83c\udf2c\ufe0f Avg Pressure",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": "SensorDB",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "pressurehpa",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#B877D9"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#B877D9",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": "SensorDB",
+          "rawSql": "SELECT NOW() as time, ROUND(AVG(pressure),1) as value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 5 MINUTE",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 1,
       "type": "gauge",
+      "title": "\ud83c\udf21\ufe0f Temperature",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 4
+      },
+      "datasource": "SensorDB",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "min": 0,
+          "max": 50,
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#73BF69",
+                "value": null
+              },
+              {
+                "color": "#FF9830",
+                "value": 28
+              },
+              {
+                "color": "#F2495C",
+                "value": 36
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "datasource": "SensorDB",
@@ -68,9 +349,32 @@
       ]
     },
     {
+      "id": 2,
+      "type": "gauge",
+      "title": "\ud83d\udca7 Humidity",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 4
+      },
       "datasource": "SensorDB",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
       "fieldConfig": {
         "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "decimals": 1,
           "color": {
             "mode": "thresholds"
           },
@@ -78,41 +382,22 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#5794F2",
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "#FF9830",
                 "value": 70
               },
               {
-                "color": "red",
+                "color": "#F2495C",
                 "value": 85
               }
             ]
-          },
-          "unit": "percent",
-          "min": 0,
-          "max": 100
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 6,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
+          }
         },
-        "orientation": "auto"
+        "overrides": []
       },
-      "title": "Humidity",
-      "type": "gauge",
       "targets": [
         {
           "datasource": "SensorDB",
@@ -123,9 +408,32 @@
       ]
     },
     {
+      "id": 3,
+      "type": "gauge",
+      "title": "\ud83c\udf2c\ufe0f Pressure",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 4
+      },
       "datasource": "SensorDB",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
       "fieldConfig": {
         "defaults": {
+          "unit": "pressurehpa",
+          "min": 950,
+          "max": 1050,
+          "decimals": 1,
           "color": {
             "mode": "thresholds"
           },
@@ -133,41 +441,22 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#73BF69",
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "#FF9830",
                 "value": 1010
               },
               {
-                "color": "red",
+                "color": "#F2495C",
                 "value": 1020
               }
             ]
-          },
-          "unit": "pressurehpa",
-          "min": 950,
-          "max": 1050
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 0
-      },
-      "id": 3,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
+          }
         },
-        "orientation": "auto"
+        "overrides": []
       },
-      "title": "Pressure",
-      "type": "gauge",
       "targets": [
         {
           "datasource": "SensorDB",
@@ -178,9 +467,32 @@
       ]
     },
     {
+      "id": 4,
+      "type": "gauge",
+      "title": "\u2600\ufe0f Light Level",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
       "datasource": "SensorDB",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
       "fieldConfig": {
         "defaults": {
+          "unit": "lux",
+          "min": 0,
+          "max": 1000,
+          "decimals": 0,
           "color": {
             "mode": "thresholds"
           },
@@ -188,41 +500,22 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#5794F2",
                 "value": null
               },
               {
-                "color": "yellow",
-                "value": 500
+                "color": "#FADE2A",
+                "value": 400
               },
               {
-                "color": "orange",
-                "value": 800
+                "color": "#FF9830",
+                "value": 750
               }
             ]
-          },
-          "unit": "lux",
-          "min": 0,
-          "max": 1000
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 0
-      },
-      "id": 4,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
+          }
         },
-        "orientation": "auto"
+        "overrides": []
       },
-      "title": "Light Level",
-      "type": "gauge",
       "targets": [
         {
           "datasource": "SensorDB",
@@ -233,93 +526,155 @@
       ]
     },
     {
-      "datasource": "SensorDB",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "center"
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
-      },
       "id": 5,
+      "type": "table",
+      "title": "\ud83d\udccb Recent Sensor Records (Latest 50)",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "datasource": "SensorDB",
       "options": {
         "sortBy": [
           {
             "displayName": "timestamp",
             "desc": true
           }
+        ],
+        "cellHeight": "sm",
+        "footer": {
+          "show": true,
+          "reducer": [
+            "mean"
+          ],
+          "fields": [
+            "temperature",
+            "humidity",
+            "pressure",
+            "light_level"
+          ],
+          "enablePagination": false,
+          "countRows": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "displayMode": "auto",
+            "filterable": true
+          },
+          "decimals": 2
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "temperature"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#73BF69",
+                      "value": null
+                    },
+                    {
+                      "color": "#FF9830",
+                      "value": 30
+                    },
+                    {
+                      "color": "#F2495C",
+                      "value": 37
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "humidity"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#5794F2",
+                      "value": null
+                    },
+                    {
+                      "color": "#FF9830",
+                      "value": 70
+                    },
+                    {
+                      "color": "#F2495C",
+                      "value": 85
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pressure"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "pressurehpa"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "light_level"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "lux"
+              }
+            ]
+          }
         ]
       },
-      "title": "Temperature & Humidity (Recent 30)",
-      "type": "table",
       "targets": [
         {
           "datasource": "SensorDB",
-          "rawSql": "SELECT timestamp, temperature, humidity FROM sensor_data ORDER BY id DESC LIMIT 30",
+          "rawSql": "SELECT timestamp, temperature, humidity, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 50",
           "format": "table",
           "refId": "A"
         }
       ]
-    },
-    {
-      "datasource": "SensorDB",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "center"
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
-      },
-      "id": 6,
-      "options": {
-        "sortBy": [
-          {
-            "displayName": "timestamp",
-            "desc": true
-          }
-        ]
-      },
-      "title": "Pressure & Light Level (Recent 30)",
-      "type": "table",
-      "targets": [
-        {
-          "datasource": "SensorDB",
-          "rawSql": "SELECT timestamp, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 30",
-          "format": "table",
-          "refId": "B"
-        }
-      ]
     }
-  ],
-  "refresh": "5s",
-  "schemaVersion": 36,
-  "style": "dark",
-  "tags": [
-    "sensor",
-    "mysql",
-    "realtime"
-  ],
-  "time": {
-    "from": "now-5m",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "Sensor Real-Time Monitor",
-  "uid": "sensor-rt-001",
-  "version": 1
+  ]
 }
