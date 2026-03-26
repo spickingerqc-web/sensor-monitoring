@@ -56,8 +56,8 @@
     "type": "function",
     "z": "tab1",
     "name": "Format All",
-    "func": "var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar sorted = rows.slice().reverse();\nfunction makeChart(field, label) {\n  return { payload: [{ series:[label], data:[sorted.map(function(r){\n    return { x: new Date(r.timestamp).getTime(), y: r[field] };\n  })], labels:[label] }] };\n}\nreturn [\n  [{payload: latest.temperature}],\n  [{payload: latest.humidity}],\n  [{payload: latest.pressure}],\n  [{payload: latest.light_level}],\n  [makeChart('temperature','Temp \u00b0C')],\n  [makeChart('pressure','Pressure hPa')],\n  [{payload: latest}],\n  [{payload: rows}]\n];",
-    "outputs": 8,
+    "func": "var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar sorted = rows.slice().reverse();\n\nfunction makeChart(field, label) {\n  return { payload: [{ series:[label], data:[sorted.map(function(r){\n    return { x: new Date(r.timestamp).getTime(), y: r[field] };\n  })], labels:[label] }] };\n}\n\n// \ud14c\uc774\ube14 HTML \ubb38\uc790\uc5f4 \uc0dd\uc131\nvar html = '<table style=\"width:100%;border-collapse:collapse;font-size:13px;\">';\nhtml += '<thead><tr style=\"background:#374151;color:#f9fafb;\">';\nhtml += '<th style=\"padding:8px;text-align:left;\">\ud83d\udd50 Timestamp</th>';\nhtml += '<th style=\"padding:8px;text-align:center;\">\ud83c\udf21\ufe0f Temp\u00b0C</th>';\nhtml += '<th style=\"padding:8px;text-align:center;\">\ud83d\udca7 Humid%</th>';\nhtml += '<th style=\"padding:8px;text-align:center;\">\ud83c\udf2c\ufe0f Press hPa</th>';\nhtml += '<th style=\"padding:8px;text-align:center;\">\u2600\ufe0f Light lux</th>';\nhtml += '</tr></thead><tbody>';\nrows.forEach(function(r,i){\n  var bg = i%2===0?'#1f2937':'#111827';\n  var tc = r.temperature>35?'#f87171':r.temperature>28?'#fb923c':'#4ade80';\n  var hc = r.humidity>80?'#60a5fa':r.humidity>60?'#38bdf8':'#7dd3fc';\n  var lc = r.light_level>700?'#fb923c':r.light_level>300?'#facc15':'#94a3b8';\n  html += '<tr style=\"background:'+bg+';\">';\n  html += '<td style=\"padding:5px 8px;color:#9ca3af;font-size:12px;\">'+r.timestamp+'</td>';\n  html += '<td style=\"padding:5px 8px;text-align:center;font-weight:bold;color:'+tc+';\">'+r.temperature.toFixed(1)+'</td>';\n  html += '<td style=\"padding:5px 8px;text-align:center;font-weight:bold;color:'+hc+';\">'+r.humidity.toFixed(1)+'</td>';\n  html += '<td style=\"padding:5px 8px;text-align:center;color:#6ee7b7;\">'+r.pressure.toFixed(1)+'</td>';\n  html += '<td style=\"padding:5px 8px;text-align:center;color:'+lc+';\">'+Math.round(r.light_level)+'</td>';\n  html += '</tr>';\n});\nhtml += '</tbody></table>';\n\nreturn [\n  [{payload: latest.temperature}],\n  [{payload: latest.humidity}],\n  [{payload: latest.pressure}],\n  [{payload: latest.light_level}],\n  [makeChart('temperature','Temp \u00b0C')],\n  [makeChart('pressure','Pressure hPa')],\n  [{payload: html}]\n];",
+    "outputs": 7,
     "x": 670,
     "y": 80,
     "wires": [
@@ -78,9 +78,6 @@
       ],
       [
         "n_c_presslight"
-      ],
-      [
-        "n_card"
       ],
       [
         "n_table"
@@ -246,42 +243,20 @@
     "wires": []
   },
   {
-    "id": "n_card",
-    "type": "ui_template",
-    "z": "tab1",
-    "group": "n_grp_card",
-    "order": 1,
-    "width": 12,
-    "height": 3,
-    "name": "Status Card",
-    "template": "<script>\n(function(scope){\n  scope.d = {};\n  scope.$watch('msg', function(m){ if(m && m.payload) scope.d = m.payload; });\n})(scope);\n</script>\n<div style=\"display:flex;gap:12px;flex-wrap:wrap;padding:8px;\">\n  <div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f94144,#f3722c);border-radius:12px;padding:14px;text-align:center;color:#fff;\">\n    <div style=\"font-size:28px;\">\ud83c\udf21\ufe0f</div>\n    <div style=\"font-size:28px;font-weight:bold;\">{{d.temperature | number:1}}\u00b0C</div>\n    <div style=\"font-size:12px;opacity:0.8;\">Temperature</div>\n  </div>\n  <div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#0077b6,#00b4d8);border-radius:12px;padding:14px;text-align:center;color:#fff;\">\n    <div style=\"font-size:28px;\">\ud83d\udca7</div>\n    <div style=\"font-size:28px;font-weight:bold;\">{{d.humidity | number:1}}%</div>\n    <div style=\"font-size:12px;opacity:0.8;\">Humidity</div>\n  </div>\n  <div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#1b4332,#52b788);border-radius:12px;padding:14px;text-align:center;color:#fff;\">\n    <div style=\"font-size:28px;\">\ud83c\udf2c\ufe0f</div>\n    <div style=\"font-size:28px;font-weight:bold;\">{{d.pressure | number:1}}</div>\n    <div style=\"font-size:12px;opacity:0.8;\">Pressure hPa</div>\n  </div>\n  <div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f8961e,#ffd60a);border-radius:12px;padding:14px;text-align:center;color:#fff;\">\n    <div style=\"font-size:28px;\">\u2600\ufe0f</div>\n    <div style=\"font-size:28px;font-weight:bold;\">{{d.light_level | number:0}}</div>\n    <div style=\"font-size:12px;opacity:0.8;\">Light lux</div>\n  </div>\n</div>",
-    "templateScope": "local",
-    "storeOutMessages": false,
-    "fwd": false,
-    "x": 900,
-    "y": 400,
-    "wires": [
-      []
-    ]
-  },
-  {
     "id": "n_table",
-    "type": "ui_template",
+    "type": "ui_text",
     "z": "tab1",
     "group": "n_grp_table",
     "order": 1,
     "width": 12,
-    "height": 9,
-    "name": "Data Table",
-    "template": "<script>\n(function(scope){\n  scope.rows = [];\n  scope.$watch('msg', function(m){ if(m && m.payload) scope.rows = m.payload; });\n  scope.tColor = function(v){ return v>35?'#f94144':v>28?'#f8961e':'#43aa8b'; };\n  scope.hColor = function(v){ return v>80?'#48cae4':v>60?'#00b4d8':'#90e0ef'; };\n  scope.lColor = function(v){ return v>700?'#f8961e':v>300?'#ffd60a':'#adb5bd'; };\n})(scope);\n</script>\n<div style=\"overflow-x:auto;\">\n<table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n  <thead>\n    <tr style=\"background:#1f2937;color:#e5e7eb;position:sticky;top:0;\">\n      <th style=\"padding:8px 10px;text-align:left;\">\ud83d\udd50 Timestamp</th>\n      <th style=\"padding:8px 10px;text-align:center;\">\ud83c\udf21\ufe0f Temp \u00b0C</th>\n      <th style=\"padding:8px 10px;text-align:center;\">\ud83d\udca7 Humid %</th>\n      <th style=\"padding:8px 10px;text-align:center;\">\ud83c\udf2c\ufe0f Press hPa</th>\n      <th style=\"padding:8px 10px;text-align:center;\">\u2600\ufe0f Light lux</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat=\"row in rows track by $index\"\n        ng-style=\"{'background': $index%2===0 ? '#111827' : '#1a2535'}\">\n      <td style=\"padding:6px 10px;color:#9ca3af;\">{{row.timestamp}}</td>\n      <td style=\"padding:6px 10px;text-align:center;font-weight:bold;\"\n          ng-style=\"{'color': tColor(row.temperature)}\">{{row.temperature | number:1}}</td>\n      <td style=\"padding:6px 10px;text-align:center;font-weight:bold;\"\n          ng-style=\"{'color': hColor(row.humidity)}\">{{row.humidity | number:1}}</td>\n      <td style=\"padding:6px 10px;text-align:center;color:#52b788;\">{{row.pressure | number:1}}</td>\n      <td style=\"padding:6px 10px;text-align:center;font-weight:bold;\"\n          ng-style=\"{'color': lColor(row.light_level)}\">{{row.light_level | number:0}}</td>\n    </tr>\n  </tbody>\n</table>\n</div>",
-    "templateScope": "local",
-    "storeOutMessages": false,
-    "fwd": false,
+    "height": 10,
+    "name": "Sensor Log",
+    "label": "",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
     "x": 900,
-    "y": 460,
-    "wires": [
-      []
-    ]
+    "y": 400,
+    "wires": []
   },
   {
     "id": "n_dbconfig",
@@ -302,20 +277,11 @@
     "width": "12"
   },
   {
-    "id": "n_grp_card",
-    "type": "ui_group",
-    "name": "\u26a1 Current Values",
-    "tab": "n_tab1",
-    "order": 2,
-    "disp": true,
-    "width": "12"
-  },
-  {
     "id": "n_grp_charts",
     "type": "ui_group",
     "name": "\ud83d\udcc8 Trend Charts",
     "tab": "n_tab1",
-    "order": 3,
+    "order": 2,
     "disp": true,
     "width": "12"
   },
@@ -324,7 +290,7 @@
     "type": "ui_group",
     "name": "\ud83d\udccb Sensor Log (Latest 30)",
     "tab": "n_tab1",
-    "order": 4,
+    "order": 3,
     "disp": true,
     "width": "12"
   },
