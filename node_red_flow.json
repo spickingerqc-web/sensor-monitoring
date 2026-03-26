@@ -56,7 +56,7 @@
     "type": "function",
     "z": "tab1",
     "name": "Format All",
-    "func": "var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar sorted = rows.slice().reverse();\n\nfunction p(n){ return n<10?'0'+n:n; }\nfunction fmtDate(d) {\n  var dt = new Date(d);\n  return dt.getFullYear()+'-'+p(dt.getMonth()+1)+'-'+p(dt.getDate())\n    +' '+p(dt.getHours())+':'+p(dt.getMinutes())+':'+p(dt.getSeconds());\n}\n\nfunction pts(field){ return sorted.map(function(r){ return {x:new Date(r.timestamp).getTime(),y:r[field]}; }); }\n\nvar chartTH = {payload:[{series:['Temp \u00b0C','Humidity %'],\n  data:[pts('temperature'),pts('humidity')],labels:['Temp \u00b0C','Humidity %']}]};\nvar chartPL = {payload:[{series:['Pressure hPa','Light lux'],\n  data:[pts('pressure'),pts('light_level')],labels:['Pressure hPa','Light lux']}]};\n\nvar html = '<div style=\"width:100%;overflow:hidden;\">'\n  +'<table style=\"width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;\">'\n  +'<colgroup><col style=\"width:22%\"><col style=\"width:19%\"><col style=\"width:19%\"><col style=\"width:21%\"><col style=\"width:19%\"></colgroup>'\n  +'<thead><tr style=\"background:#374151;color:#f9fafb;\">'\n  +'<th style=\"padding:7px 6px;text-align:left;\">\ud83d\udd50 Timestamp</th>'\n  +'<th style=\"padding:7px 6px;text-align:center;\">\ud83c\udf21\ufe0f Temp\u00b0C</th>'\n  +'<th style=\"padding:7px 6px;text-align:center;\">\ud83d\udca7 Humid%</th>'\n  +'<th style=\"padding:7px 6px;text-align:center;\">\ud83c\udf2c\ufe0f Press hPa</th>'\n  +'<th style=\"padding:7px 6px;text-align:center;\">\u2600\ufe0f Light lux</th>'\n  +'</tr></thead><tbody>';\n\nrows.forEach(function(r,i){\n  var bg=i%2===0?'#1f2937':'#111827';\n  var tc=r.temperature>35?'#f87171':r.temperature>28?'#fb923c':'#4ade80';\n  var hc=r.humidity>80?'#60a5fa':r.humidity>60?'#38bdf8':'#7dd3fc';\n  var lc=r.light_level>700?'#fb923c':r.light_level>300?'#facc15':'#94a3b8';\n  html+='<tr style=\"background:'+bg+';\">'\n    +'<td style=\"padding:5px 6px;color:#9ca3af;font-size:11px;\">'+fmtDate(r.timestamp)+'</td>'\n    +'<td style=\"padding:5px 6px;text-align:center;font-weight:bold;color:'+tc+';\">'+r.temperature.toFixed(1)+'</td>'\n    +'<td style=\"padding:5px 6px;text-align:center;font-weight:bold;color:'+hc+';\">'+r.humidity.toFixed(1)+'</td>'\n    +'<td style=\"padding:5px 6px;text-align:center;color:#6ee7b7;\">'+r.pressure.toFixed(1)+'</td>'\n    +'<td style=\"padding:5px 6px;text-align:center;color:'+lc+';\">'+Math.round(r.light_level)+'</td>'\n    +'</tr>';\n});\nhtml+='</tbody></table></div>';\n\nreturn [\n  [{payload: latest.temperature}],\n  [{payload: latest.humidity}],\n  [{payload: latest.pressure}],\n  [{payload: latest.light_level}],\n  [chartTH],\n  [chartPL],\n  [{payload: html}]\n];",
+    "func": "var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar sorted = rows.slice().reverse();\n\nfunction p(n){ return n<10?'0'+n:n; }\nfunction fmtDate(d) {\n  var dt = new Date(d);\n  return dt.getFullYear()+'-'+p(dt.getMonth()+1)+'-'+p(dt.getDate())\n    +' '+p(dt.getHours())+':'+p(dt.getMinutes())+':'+p(dt.getSeconds());\n}\nfunction pts(field){ return sorted.map(function(r){ return {x:new Date(r.timestamp).getTime(),y:r[field]}; }); }\n\n// \ub450 \uacc4\uc5f4\uc744 \ud558\ub098\uc758 payload\uc5d0 \ub2f4\uc544 \uc804\uc1a1\nvar chartTH = {payload:[{\n  series:['Temp \u00b0C','Humidity %'],\n  data:[pts('temperature'), pts('humidity')],\n  labels:['Temp \u00b0C','Humidity %']\n}]};\nvar chartPL = {payload:[{\n  series:['Pressure hPa','Light lux'],\n  data:[pts('pressure'), pts('light_level')],\n  labels:['Pressure hPa','Light lux']\n}]};\n\nvar html = '<div style=\"width:100%;overflow:hidden;\">'\n  +'<table style=\"width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;\">'\n  +'<colgroup><col style=\"width:22%\"><col style=\"width:19%\"><col style=\"width:19%\"><col style=\"width:21%\"><col style=\"width:19%\"></colgroup>'\n  +'<thead><tr style=\"background:#374151;color:#f9fafb;\">'\n  +'<th style=\"padding:7px 6px;text-align:left;\">\ud83d\udd50 Timestamp</th>'\n  +'<th style=\"padding:7px 6px;text-align:center;\">\ud83c\udf21\ufe0f Temp\u00b0C</th>'\n  +'<th style=\"padding:7px 6px;text-align:center;\">\ud83d\udca7 Humid%</th>'\n  +'<th style=\"padding:7px 6px;text-align:center;\">\ud83c\udf2c\ufe0f Press hPa</th>'\n  +'<th style=\"padding:7px 6px;text-align:center;\">\u2600\ufe0f Light lux</th>'\n  +'</tr></thead><tbody>';\nrows.forEach(function(r,i){\n  var bg=i%2===0?'#1f2937':'#111827';\n  var tc=r.temperature>35?'#f87171':r.temperature>28?'#fb923c':'#4ade80';\n  var hc=r.humidity>80?'#60a5fa':r.humidity>60?'#38bdf8':'#7dd3fc';\n  var lc=r.light_level>700?'#fb923c':r.light_level>300?'#facc15':'#94a3b8';\n  html+='<tr style=\"background:'+bg+';\">'\n    +'<td style=\"padding:5px 6px;color:#9ca3af;font-size:11px;\">'+fmtDate(r.timestamp)+'</td>'\n    +'<td style=\"padding:5px 6px;text-align:center;font-weight:bold;color:'+tc+';\">'+r.temperature.toFixed(1)+'</td>'\n    +'<td style=\"padding:5px 6px;text-align:center;font-weight:bold;color:'+hc+';\">'+r.humidity.toFixed(1)+'</td>'\n    +'<td style=\"padding:5px 6px;text-align:center;color:#6ee7b7;\">'+r.pressure.toFixed(1)+'</td>'\n    +'<td style=\"padding:5px 6px;text-align:center;color:'+lc+';\">'+Math.round(r.light_level)+'</td>'\n    +'</tr>';\n});\nhtml+='</tbody></table></div>';\n\nreturn [\n  [{payload: latest.temperature}],\n  [{payload: latest.humidity}],\n  [{payload: latest.pressure}],\n  [{payload: latest.light_level}],\n  [chartTH],\n  [chartPL],\n  [{payload: html}]\n];",
     "outputs": 7,
     "x": 670,
     "y": 80,
@@ -207,7 +207,9 @@
     "cutout": 0,
     "colors": [
       "#f94144",
-      "#00b4d8"
+      "#00b4d8",
+      "#f8961e",
+      "#90be6d"
     ],
     "x": 900,
     "y": 280,
@@ -236,7 +238,9 @@
     "cutout": 0,
     "colors": [
       "#52b788",
-      "#ffd60a"
+      "#ffd60a",
+      "#f8961e",
+      "#90be6d"
     ],
     "x": 900,
     "y": 340,

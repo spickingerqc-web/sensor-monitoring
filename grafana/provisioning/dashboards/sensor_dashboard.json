@@ -1,6 +1,6 @@
 {
   "uid": "sensor-rt-001",
-  "title": "\ud83c\udf21\ufe0f Sensor Real-Time Monitor",
+  "title": "🌡️ Sensor Real-Time Monitor",
   "tags": [
     "sensor",
     "mysql",
@@ -27,14 +27,17 @@
     {
       "id": 10,
       "type": "stat",
-      "title": "\ud83d\udce6 Total Records",
+      "title": "📦 Total Records",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 0,
         "y": 0
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -68,7 +71,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, COUNT(*) as value FROM sensor_data",
           "format": "time_series",
           "refId": "A"
@@ -78,14 +84,17 @@
     {
       "id": 11,
       "type": "stat",
-      "title": "\ud83d\udd50 Last Update",
+      "title": "🕐 Last Update",
       "gridPos": {
         "h": 4,
         "w": 6,
         "x": 4,
         "y": 0
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -118,7 +127,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, UNIX_TIMESTAMP(MAX(timestamp))*1000 as value FROM sensor_data",
           "format": "time_series",
           "refId": "A"
@@ -128,14 +140,17 @@
     {
       "id": 12,
       "type": "stat",
-      "title": "\ud83c\udf21\ufe0f Avg Temperature",
+      "title": "🌡️ Avg Temperature",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 10,
         "y": 0
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -175,7 +190,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, ROUND(AVG(temperature),1) as value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 5 MINUTE",
           "format": "time_series",
           "refId": "A"
@@ -185,14 +203,17 @@
     {
       "id": 13,
       "type": "stat",
-      "title": "\ud83d\udca7 Avg Humidity",
+      "title": "💧 Avg Humidity",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 14,
         "y": 0
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -232,7 +253,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, ROUND(AVG(humidity),1) as value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 5 MINUTE",
           "format": "time_series",
           "refId": "A"
@@ -242,14 +266,17 @@
     {
       "id": 14,
       "type": "stat",
-      "title": "\ud83c\udf2c\ufe0f Avg Pressure",
+      "title": "🌬️ Avg Pressure",
       "gridPos": {
         "h": 4,
         "w": 6,
         "x": 18,
         "y": 0
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -282,7 +309,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, ROUND(AVG(pressure),1) as value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 5 MINUTE",
           "format": "time_series",
           "refId": "A"
@@ -292,14 +322,17 @@
     {
       "id": 1,
       "type": "gauge",
-      "title": "\ud83c\udf21\ufe0f Temperature",
+      "title": "🌡️ Temperature",
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 0,
         "y": 4
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -341,7 +374,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, temperature as value FROM sensor_data ORDER BY id DESC LIMIT 1",
           "format": "time_series",
           "refId": "A"
@@ -351,14 +387,17 @@
     {
       "id": 2,
       "type": "gauge",
-      "title": "\ud83d\udca7 Humidity",
+      "title": "💧 Humidity",
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 6,
         "y": 4
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -400,7 +439,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, humidity as value FROM sensor_data ORDER BY id DESC LIMIT 1",
           "format": "time_series",
           "refId": "B"
@@ -410,14 +452,17 @@
     {
       "id": 3,
       "type": "gauge",
-      "title": "\ud83c\udf2c\ufe0f Pressure",
+      "title": "🌬️ Pressure",
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 12,
         "y": 4
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -459,7 +504,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, pressure as value FROM sensor_data ORDER BY id DESC LIMIT 1",
           "format": "time_series",
           "refId": "C"
@@ -469,14 +517,17 @@
     {
       "id": 4,
       "type": "gauge",
-      "title": "\u2600\ufe0f Light Level",
+      "title": "☀️ Light Level",
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 18,
         "y": 4
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "reduceOptions": {
           "calcs": [
@@ -518,7 +569,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT NOW() as time, light_level as value FROM sensor_data ORDER BY id DESC LIMIT 1",
           "format": "time_series",
           "refId": "D"
@@ -526,16 +580,129 @@
       ]
     },
     {
+      "id": 7,
+      "type": "timeseries",
+      "title": "🌡️ Temperature & 💧 Humidity Trend",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 2
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
+          "rawSql": "SELECT timestamp AS time, temperature AS value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 10 MINUTE ORDER BY timestamp",
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
+          "rawSql": "SELECT timestamp AS time, humidity AS value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 10 MINUTE ORDER BY timestamp",
+          "format": "time_series",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "🌬️ Pressure & ☀️ Light Trend",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 2
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
+          "rawSql": "SELECT timestamp AS time, pressure AS value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 10 MINUTE ORDER BY timestamp",
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
+          "rawSql": "SELECT timestamp AS time, light_level AS value FROM sensor_data WHERE timestamp >= NOW() - INTERVAL 10 MINUTE ORDER BY timestamp",
+          "format": "time_series",
+          "refId": "B"
+        }
+      ]
+    },
+    {
       "id": 5,
       "type": "table",
-      "title": "\ud83d\udccb Recent Sensor Records (Latest 50)",
+      "title": "📋 Recent Sensor Records (Latest 50)",
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 20
       },
-      "datasource": "SensorDB",
+      "datasource": {
+        "type": "mysql",
+        "uid": "P30BA306F38456E2A"
+      },
       "options": {
         "sortBy": [
           {
@@ -669,7 +836,10 @@
       },
       "targets": [
         {
-          "datasource": "SensorDB",
+          "datasource": {
+            "type": "mysql",
+            "uid": "P30BA306F38456E2A"
+          },
           "rawSql": "SELECT timestamp, temperature, humidity, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 50",
           "format": "table",
           "refId": "A"
