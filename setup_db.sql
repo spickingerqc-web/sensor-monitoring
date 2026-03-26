@@ -1,7 +1,7 @@
 -- ============================================================
 -- setup_db.sql
 -- Create database, user, and table for sensor monitoring
--- Usage: sudo mysql < setup_db.sql
+-- Usage: mysql -u root -p < setup_db.sql
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS sensor_db
@@ -23,12 +23,12 @@ CREATE TABLE sensor_data (
     INDEX idx_ts (timestamp)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Create dedicated monitoring user
-CREATE USER IF NOT EXISTS 'monitor_user'@'localhost' IDENTIFIED BY 'monitor1234';
+-- Create dedicated monitoring user (mysql_native_password for Python 3.12 compatibility)
+CREATE USER IF NOT EXISTS 'monitor_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'monitor1234';
 GRANT ALL PRIVILEGES ON sensor_db.* TO 'monitor_user'@'localhost';
 
 -- Also allow Grafana to connect (read-only is enough)
-CREATE USER IF NOT EXISTS 'grafana_user'@'localhost' IDENTIFIED BY 'grafana1234';
+CREATE USER IF NOT EXISTS 'grafana_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'grafana1234';
 GRANT SELECT ON sensor_db.* TO 'grafana_user'@'localhost';
 
 FLUSH PRIVILEGES;

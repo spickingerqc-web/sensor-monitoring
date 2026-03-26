@@ -17,6 +17,7 @@ DB_CONFIG = {
     "user": "monitor_user",
     "password": "monitor1234",
     "database": "sensor_db",
+    "ssl_disabled": True,
 }
 
 # --- Data range settings ---
