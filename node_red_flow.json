@@ -27,7 +27,7 @@
     "type": "function",
     "z": "tab1",
     "name": "Set Query",
-    "func": "msg.topic = 'SELECT timestamp, temperature, humidity, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 30';\nreturn msg;",
+    "func": "msg.topic='SELECT timestamp,temperature,humidity,pressure,light_level FROM sensor_data ORDER BY id DESC LIMIT 30';\nreturn msg;",
     "outputs": 1,
     "x": 290,
     "y": 80,
@@ -56,9 +56,9 @@
     "type": "function",
     "z": "tab1",
     "name": "Format All",
-    "func": "var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar sorted = rows.slice().reverse();\n\n// Chart helper\nfunction makeChart(field, label) {\n  var pts = sorted.map(function(r) {\n    return { x: new Date(r.timestamp).getTime(), y: r[field] };\n  });\n  return { payload: [{ series:[label], data:[pts], labels:[label] }] };\n}\n\n// Card HTML\nvar cardHtml = '<div style=\"display:flex;gap:12px;flex-wrap:wrap;padding:8px;\">'\n  + '<div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f94144,#f3722c);border-radius:12px;padding:14px;text-align:center;color:#fff;\">'\n  + '<div style=\"font-size:24px;\">\ud83c\udf21\ufe0f</div><div style=\"font-size:26px;font-weight:bold;\">' + latest.temperature.toFixed(1) + '\u00b0C</div>'\n  + '<div style=\"font-size:11px;opacity:0.85;\">Temperature</div></div>'\n  + '<div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#0077b6,#00b4d8);border-radius:12px;padding:14px;text-align:center;color:#fff;\">'\n  + '<div style=\"font-size:24px;\">\ud83d\udca7</div><div style=\"font-size:26px;font-weight:bold;\">' + latest.humidity.toFixed(1) + '%</div>'\n  + '<div style=\"font-size:11px;opacity:0.85;\">Humidity</div></div>'\n  + '<div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#1b4332,#52b788);border-radius:12px;padding:14px;text-align:center;color:#fff;\">'\n  + '<div style=\"font-size:24px;\">\ud83c\udf2c\ufe0f</div><div style=\"font-size:26px;font-weight:bold;\">' + latest.pressure.toFixed(1) + '</div>'\n  + '<div style=\"font-size:11px;opacity:0.85;\">Pressure hPa</div></div>'\n  + '<div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f8961e,#ffd60a);border-radius:12px;padding:14px;text-align:center;color:#fff;\">'\n  + '<div style=\"font-size:24px;\">\u2600\ufe0f</div><div style=\"font-size:26px;font-weight:bold;\">' + Math.round(latest.light_level) + '</div>'\n  + '<div style=\"font-size:11px;opacity:0.85;\">Light lux</div></div></div>';\n\n// Table HTML\nvar tableHtml = '<div style=\"padding:4px;overflow-x:auto;\">'\n  + '<table style=\"width:100%;border-collapse:collapse;font-size:13px;\">'\n  + '<thead><tr style=\"background:#1f2937;color:#e5e7eb;\">'\n  + '<th style=\"padding:8px 10px;text-align:left;\">\ud83d\udd50 Timestamp</th>'\n  + '<th style=\"padding:8px 10px;text-align:center;\">\ud83c\udf21\ufe0f Temp \u00b0C</th>'\n  + '<th style=\"padding:8px 10px;text-align:center;\">\ud83d\udca7 Humid %</th>'\n  + '<th style=\"padding:8px 10px;text-align:center;\">\ud83c\udf2c\ufe0f Press hPa</th>'\n  + '<th style=\"padding:8px 10px;text-align:center;\">\u2600\ufe0f Light lux</th>'\n  + '</tr></thead><tbody>';\n\nrows.forEach(function(row, i) {\n  var bg = i % 2 === 0 ? '#111827' : '#1a2535';\n  var tColor = row.temperature > 35 ? '#f94144' : row.temperature > 28 ? '#f8961e' : '#43aa8b';\n  var hColor = row.humidity > 80 ? '#48cae4' : row.humidity > 60 ? '#00b4d8' : '#90e0ef';\n  var lColor = row.light_level > 700 ? '#f8961e' : row.light_level > 300 ? '#ffd60a' : '#adb5bd';\n  tableHtml += '<tr style=\"background:' + bg + ';\">'\n    + '<td style=\"padding:6px 10px;color:#9ca3af;\">' + row.timestamp + '</td>'\n    + '<td style=\"padding:6px 10px;text-align:center;font-weight:bold;color:' + tColor + ';\">' + row.temperature.toFixed(1) + '</td>'\n    + '<td style=\"padding:6px 10px;text-align:center;font-weight:bold;color:' + hColor + ';\">' + row.humidity.toFixed(1) + '</td>'\n    + '<td style=\"padding:6px 10px;text-align:center;color:#52b788;\">' + row.pressure.toFixed(1) + '</td>'\n    + '<td style=\"padding:6px 10px;text-align:center;color:' + lColor + ';\">' + Math.round(row.light_level) + '</td>'\n    + '</tr>';\n});\ntableHtml += '</tbody></table></div>';\n\nreturn [\n  [{payload: latest.temperature}],\n  [{payload: latest.humidity}],\n  [{payload: latest.pressure}],\n  [{payload: latest.light_level}],\n  [makeChart('temperature','Temp \u00b0C')],\n  [makeChart('pressure','Pressure hPa')],\n  [{payload: cardHtml}],\n  [{payload: tableHtml}]\n];",
+    "func": "var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar sorted = rows.slice().reverse();\nfunction makeChart(field, label) {\n  return { payload: [{ series:[label], data:[sorted.map(function(r){\n    return { x: new Date(r.timestamp).getTime(), y: r[field] };\n  })], labels:[label] }] };\n}\nreturn [\n  [{payload: latest.temperature}],\n  [{payload: latest.humidity}],\n  [{payload: latest.pressure}],\n  [{payload: latest.light_level}],\n  [makeChart('temperature','Temp \u00b0C')],\n  [makeChart('pressure','Pressure hPa')],\n  [{payload: latest}],\n  [{payload: rows}]\n];",
     "outputs": 8,
-    "x": 680,
+    "x": 670,
     "y": 80,
     "wires": [
       [
@@ -108,7 +108,7 @@
     ],
     "seg1": "25",
     "seg2": "35",
-    "x": 920,
+    "x": 900,
     "y": 40,
     "wires": []
   },
@@ -133,7 +133,7 @@
     ],
     "seg1": "40",
     "seg2": "70",
-    "x": 920,
+    "x": 900,
     "y": 100,
     "wires": []
   },
@@ -158,7 +158,7 @@
     ],
     "seg1": "990",
     "seg2": "1020",
-    "x": 920,
+    "x": 900,
     "y": 160,
     "wires": []
   },
@@ -183,7 +183,7 @@
     ],
     "seg1": "300",
     "seg2": "700",
-    "x": 920,
+    "x": 900,
     "y": 220,
     "wires": []
   },
@@ -212,7 +212,7 @@
       "#f94144",
       "#00b4d8"
     ],
-    "x": 920,
+    "x": 900,
     "y": 280,
     "wires": []
   },
@@ -241,7 +241,7 @@
       "#52b788",
       "#ffd60a"
     ],
-    "x": 920,
+    "x": 900,
     "y": 340,
     "wires": []
   },
@@ -254,12 +254,11 @@
     "width": 12,
     "height": 3,
     "name": "Status Card",
-    "template": "<div ng-bind-html=\"msg.payload\"></div>",
-    "storeOutMessages": true,
-    "fwd": true,
+    "template": "<script>\n(function(scope){\n  scope.d = {};\n  scope.$watch('msg', function(m){ if(m && m.payload) scope.d = m.payload; });\n})(scope);\n</script>\n<div style=\"display:flex;gap:12px;flex-wrap:wrap;padding:8px;\">\n  <div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f94144,#f3722c);border-radius:12px;padding:14px;text-align:center;color:#fff;\">\n    <div style=\"font-size:28px;\">\ud83c\udf21\ufe0f</div>\n    <div style=\"font-size:28px;font-weight:bold;\">{{d.temperature | number:1}}\u00b0C</div>\n    <div style=\"font-size:12px;opacity:0.8;\">Temperature</div>\n  </div>\n  <div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#0077b6,#00b4d8);border-radius:12px;padding:14px;text-align:center;color:#fff;\">\n    <div style=\"font-size:28px;\">\ud83d\udca7</div>\n    <div style=\"font-size:28px;font-weight:bold;\">{{d.humidity | number:1}}%</div>\n    <div style=\"font-size:12px;opacity:0.8;\">Humidity</div>\n  </div>\n  <div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#1b4332,#52b788);border-radius:12px;padding:14px;text-align:center;color:#fff;\">\n    <div style=\"font-size:28px;\">\ud83c\udf2c\ufe0f</div>\n    <div style=\"font-size:28px;font-weight:bold;\">{{d.pressure | number:1}}</div>\n    <div style=\"font-size:12px;opacity:0.8;\">Pressure hPa</div>\n  </div>\n  <div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f8961e,#ffd60a);border-radius:12px;padding:14px;text-align:center;color:#fff;\">\n    <div style=\"font-size:28px;\">\u2600\ufe0f</div>\n    <div style=\"font-size:28px;font-weight:bold;\">{{d.light_level | number:0}}</div>\n    <div style=\"font-size:12px;opacity:0.8;\">Light lux</div>\n  </div>\n</div>",
     "templateScope": "local",
-    "className": "",
-    "x": 920,
+    "storeOutMessages": false,
+    "fwd": false,
+    "x": 900,
     "y": 400,
     "wires": [
       []
@@ -274,12 +273,11 @@
     "width": 12,
     "height": 9,
     "name": "Data Table",
-    "template": "<div ng-bind-html=\"msg.payload\"></div>",
-    "storeOutMessages": true,
-    "fwd": true,
+    "template": "<script>\n(function(scope){\n  scope.rows = [];\n  scope.$watch('msg', function(m){ if(m && m.payload) scope.rows = m.payload; });\n  scope.tColor = function(v){ return v>35?'#f94144':v>28?'#f8961e':'#43aa8b'; };\n  scope.hColor = function(v){ return v>80?'#48cae4':v>60?'#00b4d8':'#90e0ef'; };\n  scope.lColor = function(v){ return v>700?'#f8961e':v>300?'#ffd60a':'#adb5bd'; };\n})(scope);\n</script>\n<div style=\"overflow-x:auto;\">\n<table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n  <thead>\n    <tr style=\"background:#1f2937;color:#e5e7eb;position:sticky;top:0;\">\n      <th style=\"padding:8px 10px;text-align:left;\">\ud83d\udd50 Timestamp</th>\n      <th style=\"padding:8px 10px;text-align:center;\">\ud83c\udf21\ufe0f Temp \u00b0C</th>\n      <th style=\"padding:8px 10px;text-align:center;\">\ud83d\udca7 Humid %</th>\n      <th style=\"padding:8px 10px;text-align:center;\">\ud83c\udf2c\ufe0f Press hPa</th>\n      <th style=\"padding:8px 10px;text-align:center;\">\u2600\ufe0f Light lux</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat=\"row in rows track by $index\"\n        ng-style=\"{'background': $index%2===0 ? '#111827' : '#1a2535'}\">\n      <td style=\"padding:6px 10px;color:#9ca3af;\">{{row.timestamp}}</td>\n      <td style=\"padding:6px 10px;text-align:center;font-weight:bold;\"\n          ng-style=\"{'color': tColor(row.temperature)}\">{{row.temperature | number:1}}</td>\n      <td style=\"padding:6px 10px;text-align:center;font-weight:bold;\"\n          ng-style=\"{'color': hColor(row.humidity)}\">{{row.humidity | number:1}}</td>\n      <td style=\"padding:6px 10px;text-align:center;color:#52b788;\">{{row.pressure | number:1}}</td>\n      <td style=\"padding:6px 10px;text-align:center;font-weight:bold;\"\n          ng-style=\"{'color': lColor(row.light_level)}\">{{row.light_level | number:0}}</td>\n    </tr>\n  </tbody>\n</table>\n</div>",
     "templateScope": "local",
-    "className": "",
-    "x": 920,
+    "storeOutMessages": false,
+    "fwd": false,
+    "x": 900,
     "y": 460,
     "wires": [
       []
