@@ -1,21 +1,340 @@
 [
-  {"id":"tab1","type":"tab","label":"Sensor Monitor"},
-  {"id":"n_inject","type":"inject","z":"tab1","name":"Every 2s","repeat":"2","once":true,"onceDelay":0.5,"payload":"","payloadType":"date","x":100,"y":80,"wires":[["n_setquery"]]},
-  {"id":"n_setquery","type":"function","z":"tab1","name":"Set Query","func":"msg.topic = 'SELECT timestamp, temperature, humidity, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 30';\nreturn msg;","outputs":1,"x":290,"y":80,"wires":[["n_mysql"]]},
-  {"id":"n_mysql","type":"mysql","z":"tab1","name":"sensor_db","mydb":"n_dbconfig","x":480,"y":80,"wires":[["n_format"]]},
-  {"id":"n_format","type":"function","z":"tab1","name":"Format Data","func":"var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar sorted = rows.slice().reverse();\nfunction makeChart(field, label) {\n  var pts = sorted.map(function(r) {\n    return { x: new Date(r.timestamp).getTime(), y: r[field] };\n  });\n  return { payload: [{ series:[label], data:[pts], labels:[label] }] };\n}\nreturn [\n  [{payload: latest.temperature}],\n  [{payload: latest.humidity}],\n  [{payload: latest.pressure}],\n  [{payload: latest.light_level}],\n  [makeChart('temperature','Temp °C')],\n  [makeChart('pressure','Pressure hPa')],\n  [{payload: latest}],\n  [{payload: rows}]\n];","outputs":8,"x":680,"y":80,"wires":[["n_g_temp"],["n_g_hum"],["n_g_press"],["n_g_light"],["n_c_temphum"],["n_c_presslight"],["n_card"],["n_table"]]},
-  {"id":"n_g_temp","type":"ui_gauge","z":"tab1","group":"n_grp_gauges","order":1,"width":3,"height":3,"gtype":"gage","title":"Temperature","label":"°C","format":"{{value | number:1}}","min":0,"max":50,"colors":["#00b4d8","#f8961e","#f94144"],"seg1":"25","seg2":"35","x":920,"y":40,"wires":[]},
-  {"id":"n_g_hum","type":"ui_gauge","z":"tab1","group":"n_grp_gauges","order":2,"width":3,"height":3,"gtype":"gage","title":"Humidity","label":"%","format":"{{value | number:1}}","min":0,"max":100,"colors":["#90e0ef","#48cae4","#0077b6"],"seg1":"40","seg2":"70","x":920,"y":100,"wires":[]},
-  {"id":"n_g_press","type":"ui_gauge","z":"tab1","group":"n_grp_gauges","order":3,"width":3,"height":3,"gtype":"gage","title":"Pressure","label":"hPa","format":"{{value | number:1}}","min":950,"max":1050,"colors":["#b7e4c7","#52b788","#1b4332"],"seg1":"990","seg2":"1020","x":920,"y":160,"wires":[]},
-  {"id":"n_g_light","type":"ui_gauge","z":"tab1","group":"n_grp_gauges","order":4,"width":3,"height":3,"gtype":"donut","title":"Light Level","label":"lux","format":"{{value | number:0}}","min":0,"max":1000,"colors":["#f8f9fa","#ffd60a","#f8961e"],"seg1":"300","seg2":"700","x":920,"y":220,"wires":[]},
-  {"id":"n_c_temphum","type":"ui_chart","z":"tab1","group":"n_grp_charts","order":1,"width":6,"height":5,"label":"🌡 Temperature & 💧 Humidity","chartType":"line","legend":"true","xformat":"HH:mm:ss","interpolate":"monotone","nodata":"Waiting...","dot":false,"ymin":"0","ymax":"100","removeOlder":"5","removeOlderUnit":"60","removeOlderPoints":"60","cutout":0,"colors":["#f94144","#00b4d8"],"x":920,"y":280,"wires":[]},
-  {"id":"n_c_presslight","type":"ui_chart","z":"tab1","group":"n_grp_charts","order":2,"width":6,"height":5,"label":"🌬 Pressure & ☀ Light","chartType":"line","legend":"true","xformat":"HH:mm:ss","interpolate":"monotone","nodata":"Waiting...","dot":false,"ymin":"0","ymax":"1050","removeOlder":"5","removeOlderUnit":"60","removeOlderPoints":"60","cutout":0,"colors":["#52b788","#ffd60a"],"x":920,"y":340,"wires":[]},
-  {"id":"n_card","type":"ui_template","z":"tab1","group":"n_grp_card","order":1,"width":12,"height":3,"name":"Status Card","template":"<div style=\"display:flex;gap:12px;flex-wrap:wrap;padding:8px;\"><div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f94144,#f3722c);border-radius:12px;padding:14px;text-align:center;color:#fff;\"><div style=\"font-size:24px;\">🌡️</div><div style=\"font-size:24px;font-weight:bold;\">{{msg.payload.temperature | number:1}}°C</div><div style=\"font-size:11px;opacity:0.85;\">Temperature</div></div><div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#0077b6,#00b4d8);border-radius:12px;padding:14px;text-align:center;color:#fff;\"><div style=\"font-size:24px;\">💧</div><div style=\"font-size:24px;font-weight:bold;\">{{msg.payload.humidity | number:1}}%</div><div style=\"font-size:11px;opacity:0.85;\">Humidity</div></div><div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#1b4332,#52b788);border-radius:12px;padding:14px;text-align:center;color:#fff;\"><div style=\"font-size:24px;\">🌬️</div><div style=\"font-size:24px;font-weight:bold;\">{{msg.payload.pressure | number:1}}</div><div style=\"font-size:11px;opacity:0.85;\">Pressure hPa</div></div><div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f8961e,#ffd60a);border-radius:12px;padding:14px;text-align:center;color:#fff;\"><div style=\"font-size:24px;\">☀️</div><div style=\"font-size:24px;font-weight:bold;\">{{msg.payload.light_level | number:0}}</div><div style=\"font-size:11px;opacity:0.85;\">Light lux</div></div></div>","storeOutMessages":false,"fwd":false,"x":920,"y":400,"wires":[[]]},
-  {"id":"n_table","type":"ui_template","z":"tab1","group":"n_grp_table","order":1,"width":12,"height":8,"name":"Data Table","template":"<div style=\"padding:4px;\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;\"><thead><tr style=\"background:#1f2937;color:#e5e7eb;\"><th style=\"padding:8px 10px;text-align:left;\">🕐 Timestamp</th><th style=\"padding:8px 10px;text-align:center;\">🌡️ Temp °C</th><th style=\"padding:8px 10px;text-align:center;\">💧 Humid %</th><th style=\"padding:8px 10px;text-align:center;\">🌬️ Press hPa</th><th style=\"padding:8px 10px;text-align:center;\">☀️ Light lux</th></tr></thead><tbody><tr ng-repeat=\"row in msg.payload track by $index\" ng-style=\"{'background': $index%2===0?'#111827':'#1a2535'}\"><td style=\"padding:6px 10px;color:#9ca3af;\">{{row.timestamp}}</td><td style=\"padding:6px 10px;text-align:center;font-weight:bold;\" ng-style=\"{'color':row.temperature>35?'#f94144':row.temperature>28?'#f8961e':'#43aa8b'}\">{{row.temperature|number:1}}</td><td style=\"padding:6px 10px;text-align:center;font-weight:bold;\" ng-style=\"{'color':row.humidity>80?'#0077b6':row.humidity>60?'#00b4d8':'#90e0ef'}\">{{row.humidity|number:1}}</td><td style=\"padding:6px 10px;text-align:center;color:#52b788;\">{{row.pressure|number:1}}</td><td style=\"padding:6px 10px;text-align:center;\" ng-style=\"{'color':row.light_level>700?'#f8961e':row.light_level>300?'#ffd60a':'#adb5bd'}\">{{row.light_level|number:0}}</td></tr></tbody></table></div>","storeOutMessages":false,"fwd":false,"x":920,"y":460,"wires":[[]]},
-  {"id":"n_dbconfig","type":"MySQLdatabase","name":"sensor_db","host":"127.0.0.1","port":"3306","db":"sensor_db","tz":""},
-  {"id":"n_grp_gauges","type":"ui_group","name":"📊 Live Sensor Gauges","tab":"n_tab1","order":1,"disp":true,"width":"12"},
-  {"id":"n_grp_card","type":"ui_group","name":"⚡ Current Values","tab":"n_tab1","order":2,"disp":true,"width":"12"},
-  {"id":"n_grp_charts","type":"ui_group","name":"📈 Trend Charts","tab":"n_tab1","order":3,"disp":true,"width":"12"},
-  {"id":"n_grp_table","type":"ui_group","name":"📋 Sensor Log (Latest 30)","tab":"n_tab1","order":4,"disp":true,"width":"12"},
-  {"id":"n_tab1","type":"ui_tab","name":"🌡️ Sensor Dashboard","icon":"dashboard","order":1}
+  {
+    "id": "tab1",
+    "type": "tab",
+    "label": "Sensor Monitor"
+  },
+  {
+    "id": "n_inject",
+    "type": "inject",
+    "z": "tab1",
+    "name": "Every 2s",
+    "repeat": "2",
+    "once": true,
+    "onceDelay": 0.5,
+    "payload": "",
+    "payloadType": "date",
+    "x": 100,
+    "y": 80,
+    "wires": [
+      [
+        "n_setquery"
+      ]
+    ]
+  },
+  {
+    "id": "n_setquery",
+    "type": "function",
+    "z": "tab1",
+    "name": "Set Query",
+    "func": "msg.topic = 'SELECT timestamp, temperature, humidity, pressure, light_level FROM sensor_data ORDER BY id DESC LIMIT 30';\nreturn msg;",
+    "outputs": 1,
+    "x": 290,
+    "y": 80,
+    "wires": [
+      [
+        "n_mysql"
+      ]
+    ]
+  },
+  {
+    "id": "n_mysql",
+    "type": "mysql",
+    "z": "tab1",
+    "name": "sensor_db",
+    "mydb": "n_dbconfig",
+    "x": 480,
+    "y": 80,
+    "wires": [
+      [
+        "n_format"
+      ]
+    ]
+  },
+  {
+    "id": "n_format",
+    "type": "function",
+    "z": "tab1",
+    "name": "Format All",
+    "func": "var rows = msg.payload;\nif (!rows || rows.length === 0) return null;\nvar latest = rows[0];\nvar sorted = rows.slice().reverse();\n\n// Chart helper\nfunction makeChart(field, label) {\n  var pts = sorted.map(function(r) {\n    return { x: new Date(r.timestamp).getTime(), y: r[field] };\n  });\n  return { payload: [{ series:[label], data:[pts], labels:[label] }] };\n}\n\n// Card HTML\nvar cardHtml = '<div style=\"display:flex;gap:12px;flex-wrap:wrap;padding:8px;\">'\n  + '<div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f94144,#f3722c);border-radius:12px;padding:14px;text-align:center;color:#fff;\">'\n  + '<div style=\"font-size:24px;\">\ud83c\udf21\ufe0f</div><div style=\"font-size:26px;font-weight:bold;\">' + latest.temperature.toFixed(1) + '\u00b0C</div>'\n  + '<div style=\"font-size:11px;opacity:0.85;\">Temperature</div></div>'\n  + '<div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#0077b6,#00b4d8);border-radius:12px;padding:14px;text-align:center;color:#fff;\">'\n  + '<div style=\"font-size:24px;\">\ud83d\udca7</div><div style=\"font-size:26px;font-weight:bold;\">' + latest.humidity.toFixed(1) + '%</div>'\n  + '<div style=\"font-size:11px;opacity:0.85;\">Humidity</div></div>'\n  + '<div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#1b4332,#52b788);border-radius:12px;padding:14px;text-align:center;color:#fff;\">'\n  + '<div style=\"font-size:24px;\">\ud83c\udf2c\ufe0f</div><div style=\"font-size:26px;font-weight:bold;\">' + latest.pressure.toFixed(1) + '</div>'\n  + '<div style=\"font-size:11px;opacity:0.85;\">Pressure hPa</div></div>'\n  + '<div style=\"flex:1;min-width:110px;background:linear-gradient(135deg,#f8961e,#ffd60a);border-radius:12px;padding:14px;text-align:center;color:#fff;\">'\n  + '<div style=\"font-size:24px;\">\u2600\ufe0f</div><div style=\"font-size:26px;font-weight:bold;\">' + Math.round(latest.light_level) + '</div>'\n  + '<div style=\"font-size:11px;opacity:0.85;\">Light lux</div></div></div>';\n\n// Table HTML\nvar tableHtml = '<div style=\"padding:4px;overflow-x:auto;\">'\n  + '<table style=\"width:100%;border-collapse:collapse;font-size:13px;\">'\n  + '<thead><tr style=\"background:#1f2937;color:#e5e7eb;\">'\n  + '<th style=\"padding:8px 10px;text-align:left;\">\ud83d\udd50 Timestamp</th>'\n  + '<th style=\"padding:8px 10px;text-align:center;\">\ud83c\udf21\ufe0f Temp \u00b0C</th>'\n  + '<th style=\"padding:8px 10px;text-align:center;\">\ud83d\udca7 Humid %</th>'\n  + '<th style=\"padding:8px 10px;text-align:center;\">\ud83c\udf2c\ufe0f Press hPa</th>'\n  + '<th style=\"padding:8px 10px;text-align:center;\">\u2600\ufe0f Light lux</th>'\n  + '</tr></thead><tbody>';\n\nrows.forEach(function(row, i) {\n  var bg = i % 2 === 0 ? '#111827' : '#1a2535';\n  var tColor = row.temperature > 35 ? '#f94144' : row.temperature > 28 ? '#f8961e' : '#43aa8b';\n  var hColor = row.humidity > 80 ? '#48cae4' : row.humidity > 60 ? '#00b4d8' : '#90e0ef';\n  var lColor = row.light_level > 700 ? '#f8961e' : row.light_level > 300 ? '#ffd60a' : '#adb5bd';\n  tableHtml += '<tr style=\"background:' + bg + ';\">'\n    + '<td style=\"padding:6px 10px;color:#9ca3af;\">' + row.timestamp + '</td>'\n    + '<td style=\"padding:6px 10px;text-align:center;font-weight:bold;color:' + tColor + ';\">' + row.temperature.toFixed(1) + '</td>'\n    + '<td style=\"padding:6px 10px;text-align:center;font-weight:bold;color:' + hColor + ';\">' + row.humidity.toFixed(1) + '</td>'\n    + '<td style=\"padding:6px 10px;text-align:center;color:#52b788;\">' + row.pressure.toFixed(1) + '</td>'\n    + '<td style=\"padding:6px 10px;text-align:center;color:' + lColor + ';\">' + Math.round(row.light_level) + '</td>'\n    + '</tr>';\n});\ntableHtml += '</tbody></table></div>';\n\nreturn [\n  [{payload: latest.temperature}],\n  [{payload: latest.humidity}],\n  [{payload: latest.pressure}],\n  [{payload: latest.light_level}],\n  [makeChart('temperature','Temp \u00b0C')],\n  [makeChart('pressure','Pressure hPa')],\n  [{payload: cardHtml}],\n  [{payload: tableHtml}]\n];",
+    "outputs": 8,
+    "x": 680,
+    "y": 80,
+    "wires": [
+      [
+        "n_g_temp"
+      ],
+      [
+        "n_g_hum"
+      ],
+      [
+        "n_g_press"
+      ],
+      [
+        "n_g_light"
+      ],
+      [
+        "n_c_temphum"
+      ],
+      [
+        "n_c_presslight"
+      ],
+      [
+        "n_card"
+      ],
+      [
+        "n_table"
+      ]
+    ]
+  },
+  {
+    "id": "n_g_temp",
+    "type": "ui_gauge",
+    "z": "tab1",
+    "group": "n_grp_gauges",
+    "order": 1,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Temperature",
+    "label": "\u00b0C",
+    "format": "{{value | number:1}}",
+    "min": 0,
+    "max": 50,
+    "colors": [
+      "#00b4d8",
+      "#f8961e",
+      "#f94144"
+    ],
+    "seg1": "25",
+    "seg2": "35",
+    "x": 920,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "n_g_hum",
+    "type": "ui_gauge",
+    "z": "tab1",
+    "group": "n_grp_gauges",
+    "order": 2,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Humidity",
+    "label": "%",
+    "format": "{{value | number:1}}",
+    "min": 0,
+    "max": 100,
+    "colors": [
+      "#90e0ef",
+      "#48cae4",
+      "#0077b6"
+    ],
+    "seg1": "40",
+    "seg2": "70",
+    "x": 920,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "n_g_press",
+    "type": "ui_gauge",
+    "z": "tab1",
+    "group": "n_grp_gauges",
+    "order": 3,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Pressure",
+    "label": "hPa",
+    "format": "{{value | number:1}}",
+    "min": 950,
+    "max": 1050,
+    "colors": [
+      "#b7e4c7",
+      "#52b788",
+      "#1b4332"
+    ],
+    "seg1": "990",
+    "seg2": "1020",
+    "x": 920,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "n_g_light",
+    "type": "ui_gauge",
+    "z": "tab1",
+    "group": "n_grp_gauges",
+    "order": 4,
+    "width": 3,
+    "height": 3,
+    "gtype": "donut",
+    "title": "Light Level",
+    "label": "lux",
+    "format": "{{value | number:0}}",
+    "min": 0,
+    "max": 1000,
+    "colors": [
+      "#adb5bd",
+      "#ffd60a",
+      "#f8961e"
+    ],
+    "seg1": "300",
+    "seg2": "700",
+    "x": 920,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "n_c_temphum",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "n_grp_charts",
+    "order": 1,
+    "width": 6,
+    "height": 5,
+    "label": "\ud83c\udf21 Temperature & \ud83d\udca7 Humidity",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "monotone",
+    "nodata": "Waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "100",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "60",
+    "cutout": 0,
+    "colors": [
+      "#f94144",
+      "#00b4d8"
+    ],
+    "x": 920,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "n_c_presslight",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "n_grp_charts",
+    "order": 2,
+    "width": 6,
+    "height": 5,
+    "label": "\ud83c\udf2c Pressure & \u2600 Light",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "monotone",
+    "nodata": "Waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "1050",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "60",
+    "cutout": 0,
+    "colors": [
+      "#52b788",
+      "#ffd60a"
+    ],
+    "x": 920,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "n_card",
+    "type": "ui_template",
+    "z": "tab1",
+    "group": "n_grp_card",
+    "order": 1,
+    "width": 12,
+    "height": 3,
+    "name": "Status Card",
+    "template": "<div ng-bind-html=\"msg.payload\"></div>",
+    "storeOutMessages": true,
+    "fwd": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 920,
+    "y": 400,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "n_table",
+    "type": "ui_template",
+    "z": "tab1",
+    "group": "n_grp_table",
+    "order": 1,
+    "width": 12,
+    "height": 9,
+    "name": "Data Table",
+    "template": "<div ng-bind-html=\"msg.payload\"></div>",
+    "storeOutMessages": true,
+    "fwd": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 920,
+    "y": 460,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "n_dbconfig",
+    "type": "MySQLdatabase",
+    "name": "sensor_db",
+    "host": "127.0.0.1",
+    "port": "3306",
+    "db": "sensor_db",
+    "tz": ""
+  },
+  {
+    "id": "n_grp_gauges",
+    "type": "ui_group",
+    "name": "\ud83d\udcca Live Sensor Gauges",
+    "tab": "n_tab1",
+    "order": 1,
+    "disp": true,
+    "width": "12"
+  },
+  {
+    "id": "n_grp_card",
+    "type": "ui_group",
+    "name": "\u26a1 Current Values",
+    "tab": "n_tab1",
+    "order": 2,
+    "disp": true,
+    "width": "12"
+  },
+  {
+    "id": "n_grp_charts",
+    "type": "ui_group",
+    "name": "\ud83d\udcc8 Trend Charts",
+    "tab": "n_tab1",
+    "order": 3,
+    "disp": true,
+    "width": "12"
+  },
+  {
+    "id": "n_grp_table",
+    "type": "ui_group",
+    "name": "\ud83d\udccb Sensor Log (Latest 30)",
+    "tab": "n_tab1",
+    "order": 4,
+    "disp": true,
+    "width": "12"
+  },
+  {
+    "id": "n_tab1",
+    "type": "ui_tab",
+    "name": "\ud83c\udf21\ufe0f Sensor Dashboard",
+    "icon": "dashboard",
+    "order": 1
+  }
 ]
